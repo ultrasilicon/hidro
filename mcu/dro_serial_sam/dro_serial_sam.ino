@@ -50,16 +50,16 @@ template<unsigned char A_PIN, unsigned char B_PIN> struct Scale {
 
 
 Scale<9, 10>* scale_x = nullptr;
-Scale<7, 8>* scale_y = nullptr;
-Scale<3, 4>* scale_z = nullptr;
+Scale<4, 5>* scale_y = nullptr;
+Scale<2, 3>* scale_z = nullptr;
 int timestamp = 0;
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial1.begin(9600);
   scale_x = new Scale<9, 10>([](){scale_x->update();});
-  scale_y = new Scale<7, 8>([](){scale_y->update();});
-  scale_z = new Scale<3, 4>([](){scale_z->update();});
+  scale_y = new Scale<4, 5>([](){scale_y->update();});
+  scale_z = new Scale<2, 3>([](){scale_z->update();});
 }
 
 void loop()
@@ -67,12 +67,12 @@ void loop()
   if(millis() - timestamp < 10)
     return;
     
-  Serial.print(scale_x->getValue(), 3);
-  Serial.print(" ");
-  Serial.print(scale_y->getValue(), 3);
-  Serial.print(" ");
-  Serial.print(scale_z->getValue(), 3);
-  Serial.print("\n");
+  Serial1.print(scale_x->getValue(), 3);
+  Serial1.print(" ");
+  Serial1.print(scale_y->getValue(), 3);
+  Serial1.print(" ");
+  Serial1.print(scale_z->getValue(), 3);
+  Serial1.print("\n");
   
   timestamp = millis();
 }
