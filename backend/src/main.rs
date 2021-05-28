@@ -1,33 +1,25 @@
-extern crate serialport;
 
 use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
 // serial
-use std::io::prelude::*;
+// use std::io::prelude::*;
+
+use backend::serial::SerialParser;
+use backend::serial::SerialEvent;
 
 
 
 fn main() {
-    let (tx, rx) = mpsc::channel();
+    let (tx, rx) : (mpsc::Sender<SerialEvent>, mpsc::Receiver<SerialEvent>) = mpsc::channel();
 
     thread::spawn(move || {
-        let mut port = serialport::new("/dev/cu.usbmodem14101", 9600)
-            .timeout(Duration::from_millis(100))
-            .open()
-            .expect("Failed to open port");
-
-
-        println!("reading bytes");
-        loop {
-            let mut buf: Vec<u8> = vec![0; 32];
-            port.read(buf.as_mut_slice()).expect("Found no data!");
-            tx.send(String::from_utf8(buf).unwrap()).unwrap();
-        }
+        let mut parser = SerialParser::new(tx);
+        parser.begin("/dev/cu.SLAB_USBtoUART", 9600, Duration::from_millis(100));
     });
 
     for received in rx {
-        println!("Got: {}", received);
+        println!("Got: {:?}", received);
     }
 }
