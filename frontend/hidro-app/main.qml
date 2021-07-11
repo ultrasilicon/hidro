@@ -118,6 +118,7 @@ Window {
                 var halfHeight = height / 2;
                 var halWidth = width / 2;
 
+                ctx.save();
 
                 // background
                 ctx.fillStyle = "#F9EDF0";
@@ -126,19 +127,23 @@ Window {
                 // grid
                 ctx.lineWidth = 1
                 ctx.strokeStyle = "#66ffffff"
-                ctx.beginPath()
+                ctx.beginPath();
+                ctx.translate(halWidth, halfHeight);
+
                 var nrows = height/grid_width;
-                for(var i = 0; i < nrows + 1; i++) {
-                    ctx.moveTo(0, grid_width*i);
+                for(var i = -halWidth; i < nrows + 1; i++) {
+                    ctx.moveTo(-halWidth, grid_width*i);
                     ctx.lineTo(width, grid_width*i);
                 }
                 var ncols = width/grid_width
-                for(var j = 0; j < ncols + 1; j++) {
-                    ctx.moveTo(grid_width*j, 0);
+                for(var j = -halfHeight; j < ncols + 1; j++) {
+                    ctx.moveTo(grid_width*j, -halfHeight);
                     ctx.lineTo(grid_width*j, height);
                 }
-                ctx.closePath()
-                ctx.stroke()
+                ctx.closePath();
+                ctx.stroke();
+                ctx.restore();
+
 
                 // bit
                 ctx.fillStyle = "#cc353535";
