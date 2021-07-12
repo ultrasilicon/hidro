@@ -18,77 +18,51 @@ Window {
         //        spacing: 0
 
         Rectangle {
+            id: control_panel
             Layout.fillHeight: true
             Layout.margins: 10
 
             width: 200
             color: "#ffffff"
             radius: 10
+
+            ColumnLayout{
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+
+                Text {
+                    id: x_axis_display
+                    property double val: 0.000
+                    text: "x       " + val.toLocaleString(Qt.locale(), 'f', 3)
+                    color: "#cccccc"
+                    font.pixelSize: 40
+                    Layout.leftMargin: 10
+                }
+                Text {
+                    id: y_axis_display
+                    property double val: 0.000
+                    text: "y       " + val.toLocaleString(Qt.locale(), 'f', 3)
+                    color: "#cccccc"
+                    font.pixelSize: 40
+                    Layout.leftMargin: 10
+                }
+                Text {
+                    id: z_axis_display
+                    property double val: 0.000
+                    text: "z       " + val.toLocaleString(Qt.locale(), 'f', 3)
+                    color: "#cccccc"
+                    font.pixelSize: 40
+                    Layout.leftMargin: 10
+                }
+
+            }
+
+
         }
-
-        Plugin {
-            id: mapPlugin
-            name: "osm" // "mapboxgl", "esri", ...
-            // specify plugin parameters if necessary
-            // PluginParameter {
-            //     name:
-            //     value:
-            // }
-        }
-        //        Map {
-
-        //            Layout.fillHeight: true
-        //            Layout.fillWidth: true
-        //            Layout.margins: 10
-        //            plugin: mapPlugin
-        //            center: QtPositioning.coordinate(59.91, 10.75) // Oslo
-        //            zoomLevel: 14
-
-        //            id: canvas
-
-
-        //            property bool rounded: true
-        //            property bool adapt: true
-        //            layer.enabled: rounded
-        //            layer.effect: OpacityMask {
-        //                    maskSource: Item {
-        //                        width: canvas.width
-        //                        height: canvas.height
-        //                        Rectangle {
-        //                            anchors.centerIn: parent
-        //                            width: canvas.adapt ? canvas.width : Math.min(canvas.width, canvas.height)
-        //                            height: canvas.adapt ? canvas.height : canvasr
-        //                            radius: 10
-        //                        }
-        //                    }
-        //                }
-
-        //            MapCircle {
-        //                id: butterfly
-        //                    center {
-        //                        latitude: 59.91
-        //                        longitude: 10.75
-        //                    }
-        //                    radius: 5000.0
-        //                    color: 'green'
-        //                    border.width: 3
-        //                }
-
-        //            DropShadow {
-        //                    anchors.fill: butterfly
-        //                    horizontalOffset: 3
-        //                    verticalOffset: 3
-        //                    radius: 8.0
-        //                    samples: 17
-        //                    color: "#80000000"
-        //                    source: butterfly
-        //                }
-        //        }
 
 
 
         Canvas {
-            id: canvas
+            id: live_view_panel
 
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -99,12 +73,12 @@ Window {
             layer.enabled: rounded
             layer.effect: OpacityMask {
                 maskSource: Item {
-                    width: canvas.width
-                    height: canvas.height
+                    width: live_view_panel.width
+                    height: live_view_panel.height
                     Rectangle {
                         anchors.centerIn: parent
-                        width: canvas.adapt ? canvas.width : Math.min(canvas.width, canvas.height)
-                        height: canvas.adapt ? canvas.height : canvasr
+                        width: live_view_panel.adapt ? live_view_panel.width : Math.min(live_view_panel.width, live_view_panel.height)
+                        height: live_view_panel.adapt ? live_view_panel.height : canvasr
                         radius: 14
                     }
                 }
@@ -112,6 +86,8 @@ Window {
 
             // pixel per millimeter
             property double ppm: 5.0
+            property double ppm_max: 70.0
+            property double ppm_min: 3.0
             property double grid_width: 1.0 * ppm
 
             onPaint: {
@@ -189,28 +165,26 @@ Window {
 
 
             MouseArea {
-                property double factor : 1.5
-
-                anchors.fill: canvas
+                anchors.fill: live_view_panel
                 propagateComposedEvents: true
 
                 onWheel: {
                     var delta = wheel.angleDelta.y;
                     if(delta > 0){
                         // zoom in
-                        let newVal =  canvas.ppm + delta / (100-canvas.ppm)
-                        if(newVal > 100)
+                        let newVal =  live_view_panel.ppm + delta / (100-live_view_panel.ppm)
+                        if(newVal > live_view_panel.ppm_max)
                             return;
-                        canvas.ppm = newVal;
-                        canvas.requestPaint();
+                        live_view_panel.ppm = newVal;
+                        live_view_panel.requestPaint();
                     } else {
                         // zoom out
-                        let newVal =  canvas.ppm + delta / (100-canvas.ppm);
-                        if (newVal < 5)
-                            canvas.ppm = 5;
+                        let newVal =  live_view_panel.ppm + delta / (100-live_view_panel.ppm);
+                        if (newVal < live_view_panel.ppm_min)
+                            live_view_panel.ppm = ppm_min;
                         else
-                            canvas.ppm = newVal;
-                        canvas.requestPaint();
+                            live_view_panel.ppm = newVal;
+                        live_view_panel.requestPaint();
                     }
                 }
                 onPressed:{
