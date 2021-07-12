@@ -7,7 +7,7 @@ import QtPositioning 5.6
 
 Window {
     visible: true
-    title: qsTr("Hello World")
+    title: qsTr("hidro")
     minimumWidth: 800
     minimumHeight: 480
     //    width: 800
@@ -92,7 +92,7 @@ Window {
 
             Layout.fillHeight: true
             Layout.fillWidth: true
-            Layout.margins: 10
+            Layout.margins: 15
 
             property bool rounded: true
             property bool adapt: true
@@ -105,60 +105,86 @@ Window {
                         anchors.centerIn: parent
                         width: canvas.adapt ? canvas.width : Math.min(canvas.width, canvas.height)
                         height: canvas.adapt ? canvas.height : canvasr
-                        radius: 10
+                        radius: 14
                     }
                 }
             }
 
+            // pixel per millimeter
             property double ppm: 5.0
             property double grid_width: 1.0 * ppm
 
             onPaint: {
                 var ctx = getContext("2d");
-                var halfHeight = height / 2;
-                var halWidth = width / 2;
+                var halfHeight = height * 0.5;
+                var halfWidth = width * 0.5;
 
-                ctx.save();
+
 
                 // background
                 ctx.fillStyle = "#F9EDF0";
                 ctx.fillRect(0, 0, width, height);
 
-                // grid
-                ctx.lineWidth = 1
-                ctx.strokeStyle = "#66ffffff"
-                ctx.beginPath();
-                ctx.translate(halWidth, halfHeight);
 
-                var nrows = height/grid_width;
-                for(var i = -halWidth; i < nrows + 1; i++) {
-                    ctx.moveTo(-halWidth, grid_width*i);
-                    ctx.lineTo(width, grid_width*i);
+
+                // grid
+                ctx.save();
+                ctx.translate(halfWidth, halfHeight);
+                ctx.lineWidth = 1
+                ctx.strokeStyle = "#ccffffff"
+                // ctx.beginPath();
+                let halfRows = height / grid_width * 0.5 | 0;
+                for(var i = -halfRows; i <= halfRows; ++ i) {
+                    let yPos = grid_width * i;
+                    ctx.moveTo(-halfWidth, yPos);
+                    ctx.lineTo(width, yPos);
                 }
-                var ncols = width/grid_width
-                for(var j = -halfHeight; j < ncols + 1; j++) {
-                    ctx.moveTo(grid_width*j, -halfHeight);
-                    ctx.lineTo(grid_width*j, height);
+                let halfCols = width / grid_width * 0.5 | 0;
+                for(var j = -halfCols; j <= halfCols; ++ j) {
+                    let xPos = grid_width * j;
+                    ctx.moveTo(xPos, -halfHeight);
+                    ctx.lineTo(xPos, height);
                 }
-                ctx.closePath();
+                // commenting this line gives huge performance boost
+                // ctx.closePath();
                 ctx.stroke();
                 ctx.restore();
 
 
+
+                // shape test
+                ctx.save();
+                ctx.translate(halfWidth, halfHeight);
+                // Shadow
+                ctx.shadowColor = '#C21550';
+//                ctx.shadowBlur = 10;
+                ctx.shadowSpread = 110;
+                // Rectangle
+                ctx.fillStyle = '#C21550';
+                ctx.fillRect(6*ppm, 6*ppm, 15*ppm, 10*ppm);
+                ctx.restore();
+
+
+
                 // bit
-                ctx.fillStyle = "#cc353535";
+                ctx.fillStyle = "#aa353535";
                 ctx.beginPath();
-                ctx.arc(halWidth, halfHeight, 2*ppm, 0, 2 * Math.PI);
+                ctx.arc(halfWidth, halfHeight, 2*ppm, 0, 2 * Math.PI);
                 ctx.fill();
+
+
 
                 // crosshair
                 ctx.beginPath();
                 ctx.strokeStyle = "#FF7EA4"
                 ctx.moveTo(0, halfHeight);
                 ctx.lineTo(width, halfHeight);
-                ctx.moveTo(halWidth, 0);
-                ctx.lineTo(halWidth, height);
+                ctx.moveTo(halfWidth, 0);
+                ctx.lineTo(halfWidth, height);
                 ctx.stroke();
+
+
+
             }
 
 
@@ -172,14 +198,14 @@ Window {
                     var delta = wheel.angleDelta.y;
                     if(delta > 0){
                         // zoom in
-                        let newVal =  canvas.ppm + delta / canvas.ppm
+                        let newVal =  canvas.ppm + delta / (100-canvas.ppm)
                         if(newVal > 100)
                             return;
                         canvas.ppm = newVal;
                         canvas.requestPaint();
                     } else {
                         // zoom out
-                        let newVal =  canvas.ppm + delta / (100-canvas.ppm)
+                        let newVal =  canvas.ppm + delta / (100-canvas.ppm);
                         if (newVal < 5)
                             canvas.ppm = 5;
                         else

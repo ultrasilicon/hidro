@@ -4,7 +4,7 @@
 <context>
     <name>main</name>
     <message>
-        <source>Hello World</source>
+        <source>hidro</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
