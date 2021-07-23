@@ -3,9 +3,6 @@ use std::sync::mpsc;
 use std::thread;
 use std::time::Duration;
 
-// serial
-// use std::io::prelude::*;
-
 use backend::serial::SerialParser;
 use backend::serial::SerialEvent;
 
@@ -16,7 +13,7 @@ fn main() {
 
     thread::spawn(move || {
         let mut parser = SerialParser::new(tx);
-        parser.begin("/dev/cu.SLAB_USBtoUART", 9600, Duration::from_millis(100));
+        parser.start("/dev/cu.SLAB_USBtoUART", 9600, Duration::from_millis(100));
     });
 
     for received in rx {

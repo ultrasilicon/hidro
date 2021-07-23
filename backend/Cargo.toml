@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 serialport = "4.0.1"
+tungstenite = "0.13.0"

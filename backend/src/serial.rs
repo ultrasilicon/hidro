@@ -4,19 +4,20 @@ use std::str;
 use std::sync::mpsc;
 use std::time::Duration;
 
-pub struct SerialParser {
-    pub tx: mpsc::Sender<SerialEvent>,
-    buf: String,
-    x_prev: f32,
-    y_prev: f32,
-    z_prev: f32,
-}
 
 #[derive(Debug)]
 pub enum SerialEvent {
     XAxisMoved(f32),
     YAxisMoved(f32),
     ZAxisMoved(f32),
+}
+
+pub struct SerialParser {
+    tx: mpsc::Sender<SerialEvent>,
+    buf: String,
+    x_prev: f32,
+    y_prev: f32,
+    z_prev: f32,
 }
 
 impl SerialParser {
@@ -30,7 +31,14 @@ impl SerialParser {
         };
     }
 
-    pub fn begin(&mut self, path: &str, baud: u32, timeout: Duration) {
+    fn read(port: &mut Box<dyn serialport::SerialPort>) -> String {
+        let mut buf: Vec<u8> = vec![0; 32];
+        port.read(buf.as_mut_slice()).expect("Found no data!");
+        return String::from_utf8(buf).unwrap();
+    }
+
+    /// Begin open, read, align, parse 
+    pub fn start(&mut self, path: &str, baud: u32, timeout: Duration) {
         let mut port = serialport::new(path, baud)
             .timeout(timeout)
             .open()
@@ -38,21 +46,17 @@ impl SerialParser {
 
         println!("reading bytes");
 
+        self.align(&mut port);
+        
         loop {
-            self.align(&mut port);
             self.parse(&mut port);
         }
     }
 
-    fn read(&mut self, port: &mut Box<dyn serialport::SerialPort>) -> String {
-        let mut buf: Vec<u8> = vec![0; 32];
-        port.read(buf.as_mut_slice()).expect("Found no data!");
-        return String::from_utf8(buf).unwrap();
-    }
-
+    /// Align buffer by discarding the first line
     fn align(&mut self, port: &mut Box<dyn serialport::SerialPort>) {
         loop {
-            let raw = self.read(port);
+            let raw = SerialParser::read(port);
             match raw.rfind('\n') {
                 Some(pos) => {
                     self.buf = raw[pos + 1..raw.len()].to_string();
@@ -63,9 +67,10 @@ impl SerialParser {
         }
     }
 
+    /// Parses aligned serial stream and send axis updates via channel
     fn parse(&mut self, port: &mut Box<dyn serialport::SerialPort>) {
         loop {
-            let raw = self.read(port);
+            let raw = SerialParser::read(port);
             self.buf += raw.as_str();
             match self.buf.find('\n') {
                 Some(pos) => {
@@ -75,6 +80,7 @@ impl SerialParser {
                         [x, y, z] => {
                             // println!("x: {}, y: {}, z: {}", x,y,z);
                             let x_val: f32 = x.parse().unwrap();
+                            // send axis updates only when they change
                             if self.x_prev != x_val {
                                 self.x_prev = x_val;
                                 self.tx.send(SerialEvent::XAxisMoved(x_val)).unwrap();
