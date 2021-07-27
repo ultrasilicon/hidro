@@ -2,13 +2,13 @@
 use std::collections::hash_map::HashMap;
 
 
-struct Pos {
+pub struct Pos {
     x: f32,
     y: f32,
     z: f32
 }
 
-struct Itinerary {
+pub struct Itinerary {
     zeros: HashMap<String, Pos>,
     cur_zero: String,
     stops: HashMap<String, Pos>,
