@@ -56,4 +56,4 @@ Cargo.lock
 *.pdb
 
 # kicad
-pcb/hydro_board/fp-info-cache
+fp-info-cache
