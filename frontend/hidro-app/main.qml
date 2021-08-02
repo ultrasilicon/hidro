@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.0
 
 
 Window {
+    id: main_window
     visible: true
     title: qsTr("hidro")
     minimumWidth: 800
@@ -14,7 +15,12 @@ Window {
         //        spacing: 0
 
         ControlPanel { id: control_panel }
-        LiveViewPanel { id: live_view_panel }
+        ColumnLayout {
+            LiveAxisMonitor { id: live_axis_monitor }
+            LiveWorkView { id: live_view_panel }
+
+        }
+
 
 
     }

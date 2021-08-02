@@ -14,30 +14,30 @@ Rectangle {
     ColumnLayout{
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
-        Text {
-            id: x_axis_display
-            property double val: 0.000
-            text: "x       " + val.toLocaleString(Qt.locale(), 'f', 3)
-            color: "#cccccc"
-            font.pixelSize: 40
-            Layout.leftMargin: 10
-        }
-        Text {
-            id: y_axis_display
-            property double val: 0.000
-            text: "y       " + val.toLocaleString(Qt.locale(), 'f', 3)
-            color: "#cccccc"
-            font.pixelSize: 40
-            Layout.leftMargin: 10
-        }
-        Text {
-            id: z_axis_display
-            property double val: 0.000
-            text: "z       " + val.toLocaleString(Qt.locale(), 'f', 3)
-            color: "#cccccc"
-            font.pixelSize: 40
-            Layout.leftMargin: 10
-        }
+//        Text {
+//            id: x_axis_display
+//            property double val: 0.000
+//            text: "x       " + val.toLocaleString(Qt.locale(), 'f', 3)
+//            color: "#cccccc"
+//            font.pixelSize: 40
+//            Layout.leftMargin: 10
+//        }
+//        Text {
+//            id: y_axis_display
+//            property double val: 0.000
+//            text: "y       " + val.toLocaleString(Qt.locale(), 'f', 3)
+//            color: "#cccccc"
+//            font.pixelSize: 40
+//            Layout.leftMargin: 10
+//        }
+//        Text {
+//            id: z_axis_display
+//            property double val: 0.000
+//            text: "z       " + val.toLocaleString(Qt.locale(), 'f', 3)
+//            color: "#cccccc"
+//            font.pixelSize: 40
+//            Layout.leftMargin: 10
+//        }
 
     }
 
