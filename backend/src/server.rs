@@ -1,6 +1,6 @@
 use crate::core::CoreEvent;
 
-use tungstenite::server::accept;
+use tungstenite::accept;
 
 use std::net::TcpListener;
 use std::sync::mpsc;

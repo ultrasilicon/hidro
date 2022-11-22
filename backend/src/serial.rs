@@ -1,9 +1,8 @@
 extern crate serialport;
 
-use std::str;
+use std::{str, thread};
 use std::sync::mpsc;
 use std::time::Duration;
-
 
 #[derive(Debug)]
 pub enum SerialEvent {
@@ -20,15 +19,27 @@ pub struct SerialParser {
     z_prev: f32,
 }
 
+pub struct Serial {
+}
+
+impl Serial {
+    pub fn start(path: String, baud: u32, timeout: Duration, tx: mpsc::Sender<SerialEvent>) {
+        thread::spawn(move || {
+            let mut parser = SerialParser::new(tx);
+            parser.start(path, baud, timeout);
+        });        
+    }
+}
+
 impl SerialParser {
-    pub fn new(tx: mpsc::Sender<SerialEvent>) -> SerialParser {
-        return SerialParser {
+    pub fn new(tx: mpsc::Sender<SerialEvent>) -> Self {
+        SerialParser {
             tx: tx,
             buf: String::with_capacity(32),
             x_prev: 0.0,
             y_prev: 0.0,
             z_prev: 0.0,
-        };
+        }
     }
 
     fn read(port: &mut Box<dyn serialport::SerialPort>) -> String {
@@ -38,7 +49,7 @@ impl SerialParser {
     }
 
     /// Begin open, read, align, parse 
-    pub fn start(&mut self, path: &str, baud: u32, timeout: Duration) {
+    pub fn start(&mut self, path: String, baud: u32, timeout: Duration) {
         let mut port = serialport::new(path, baud)
             .timeout(timeout)
             .open()

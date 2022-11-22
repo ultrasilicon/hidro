@@ -1,22 +1,41 @@
+use clap::Parser;
 
 use std::sync::mpsc;
-use std::thread;
 use std::time::Duration;
 
-use backend::serial::SerialParser;
-use backend::serial::SerialEvent;
+use hydrod::serial::Serial;
+
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Path to the serial device
+    #[arg(short, long)]
+    device: String,
+
+    /// Baud rate
+    #[arg(short, long, default_value_t = 9600)]
+    baud: u32,
+
+    /// Serial timeout in millisecond
+    #[arg(short, long, default_value_t = 100)]
+    timeout: u64,
+}
 
 
-
+// Example: target/debug/hydrod -d /dev/ttyACM0
 fn main() {
-    let (tx, rx) : (mpsc::Sender<SerialEvent>, mpsc::Receiver<SerialEvent>) = mpsc::channel();
+    let args = Args::parse();
 
-    thread::spawn(move || {
-        let mut parser = SerialParser::new(tx);
-        parser.start("/dev/cu.SLAB_USBtoUART", 9600, Duration::from_millis(100));
-    });
+    let (serial_tx, serial_rx) = mpsc::channel();
 
-    for received in rx {
-        println!("Got: {:?}", received);
+    Serial::start(
+        args.device,
+        args.baud,
+        Duration::from_millis(args.timeout),
+        serial_tx
+    );
+
+    for event in serial_rx {
+        println!("Got: {:?}", event);
     }
 }
