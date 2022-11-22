@@ -10,13 +10,14 @@ template<unsigned char A_PIN, unsigned char B_PIN> struct Scale {
   Scale(void(*isr)()) {
     pinMode(A_PIN, INPUT);
     attachInterrupt(A_PIN, isr, CHANGE);
-    pinMode(B_PIN, INPUT);
-    attachInterrupt(B_PIN, isr, CHANGE);
-
     a_val = digitalRead(A_PIN);
     a_prev = a_val;
+
+    pinMode(B_PIN, INPUT);
+    attachInterrupt(B_PIN, isr, CHANGE);
     b_val = digitalRead(B_PIN);
     b_prev = b_val;
+
     counter = 0;
   }
 
@@ -56,7 +57,8 @@ int timestamp = 0;
 
 void setup()
 {
-  Serial1.begin(9600);
+  SerialUSB.begin(9600);
+  
   scale_x = new Scale<9, 10>([](){scale_x->update();});
   scale_y = new Scale<4, 5>([](){scale_y->update();});
   scale_z = new Scale<2, 3>([](){scale_z->update();});
@@ -67,12 +69,12 @@ void loop()
   if(millis() - timestamp < 10)
     return;
     
-  Serial1.print(scale_x->getValue(), 3);
-  Serial1.print(" ");
-  Serial1.print(scale_y->getValue(), 3);
-  Serial1.print(" ");
-  Serial1.print(scale_z->getValue(), 3);
-  Serial1.print("\n");
+  SerialUSB.print(scale_x->getValue(), 3);
+  SerialUSB.print(" ");
+  SerialUSB.print(scale_y->getValue(), 3);
+  SerialUSB.print(" ");
+  SerialUSB.print(scale_z->getValue(), 3);
+  SerialUSB.print("\n");
   
   timestamp = millis();
 }
